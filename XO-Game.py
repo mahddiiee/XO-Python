@@ -1,53 +1,101 @@
 import tkinter as tk
 from tkinter import messagebox
 
-def check_winner():
-    for combo in winning_combinations:
-        if buttons[combo[0]]["text"] == buttons[combo[1]]["text"] == buttons[combo[2]]["text"] != "":
-            winner = buttons[combo[0]]["text"]
-            messagebox.showinfo("game over", f"player {winner} win")
-            reset_game()
-            return True
-    if all(buttons[i]["text"] != "" for i in range(9)):
-        messagebox.showinfo("game over", "mosaavi")
-        reset_game()
-        return True
-    return False
+window = tk.Tk()
+window.title("XO Game")
 
-def button_click(index):
-    if buttons[index]["text"] == "" and not check_winner():
-        buttons[index]["text"] = current_player.get()
-        if not check_winner():
-            if current_player.get() == "X":
-                current_player.set("O")
-            else:
-                current_player.set("X")
+turn = "X"
 
-def reset_game():
-    for button in buttons:
-        button["text"] = ""
-    current_player.set("X")
+btns = []
 
-root = tk.Tk()
-root.title("پروژه برنامه نویسی")
-
-current_player = tk.StringVar()
-current_player.set("X")
-
-buttons = []
-winning_combinations = [
-    [0,1,2], [3,4,5], [6,7,8],
-    [0,3,6], [1,4,7], [2,5,8],
-    [0,4,8], [2,4,6]
+wins = [
+    [0,1,2],
+    [3,4,5],
+    [6,7,8],
+    [0,3,6],
+    [1,4,7],
+    [2,5,8],
+    [0,4,8],
+    [2,4,6]
 ]
 
+
+def restart():
+    global turn
+
+    for b in btns:
+        b["text"] = ""
+
+    turn = "X"
+
+
+def check():
+
+    for w in wins:
+
+        a = btns[w[0]]["text"]
+        b = btns[w[1]]["text"]
+        c = btns[w[2]]["text"]
+
+        if a != "" and a == b and b == c:
+            messagebox.showinfo("Game", a + " Wins")
+            restart()
+            return True
+
+    full = True
+
+    for x in btns:
+        if x["text"] == "":
+            full = False
+
+    if full:
+        messagebox.showinfo("Game", "Draw")
+        restart()
+        return True
+
+    return False
+
+
+def click(i):
+
+    global turn
+
+    if btns[i]["text"] != "":
+        return
+
+    btns[i]["text"] = turn
+
+    if check():
+        return
+
+    if turn == "X":
+        turn = "O"
+    else:
+        turn = "X"
+
+
 for i in range(9):
-    button = tk.Button(root, text="", font=('Arial', 20), width=5, height=2,
-                       command=lambda i=i: button_click(i))
-    button.grid(row=i//3, column=i%3)
-    buttons.append(button)
 
-reset_button = tk.Button(root, text="Reset Game", command=reset_game, font=('Arial', 12))
-reset_button.grid(row=3, column=0, columnspan=3, pady=10)
+    b = tk.Button(
+        window,
+        text="",
+        width=5,
+        height=2,
+        font=("Arial",20),
+        command=lambda i=i: click(i)
+    )
 
-root.mainloop()
+    b.grid(row=i//3, column=i%3)
+
+    btns.append(b)
+
+
+r = tk.Button(
+    window,
+    text="Reset",
+    command=restart
+)
+
+r.grid(row=3, column=0, columnspan=3, pady=10)
+
+window.mainloop()
